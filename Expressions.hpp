@@ -74,7 +74,7 @@ class expr
 public:
 	// Default Constructor and Destructor
 	expr() { }
-	~expr() { }
+	virtual ~expr() = default;
 
 	// Visitor class declaration
 	class visitor;

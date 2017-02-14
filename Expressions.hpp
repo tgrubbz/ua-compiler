@@ -997,8 +997,8 @@ public:
 // And then expression class
 // 
 // Summary:
-//		- Constuction of this class takes one expression pointer
-//			(sub expression) declared as e.
+//		- Constuction of this class takes two expression pointers
+//			(sub expressions) declared as e1 and e2.
 //		- e1 and e2 must be of the bool_type.
 // 		- This expression is of the bool_type.
 //		- The evaluation of this expression is equal to e2 if e1 evaluates
@@ -1045,10 +1045,10 @@ public:
 // Or else expression class
 // 
 // Summary:
-//		- Constuction of this class takes one expression pointer
-//			(sub expression) declared as e.
-//		- e1 and e2 must be of the bool_type.
-// 		- This expression is of the bool_type.
+//		- Constuction of this class takes two expression pointers
+//			(sub expressions) declared as e1 and e2.
+//		- e1 and e2 must be of identical type.
+// 		- This expression is of the same type as e1 and e2.
 //		- The evaluation of this expression is equal to e1 by 
 //			default or else e2.
 // 

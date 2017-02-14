@@ -29,6 +29,8 @@ class multi_expr;
 class div_expr;
 class rem_expr;
 class neg_expr;
+class and_then_expr;
+class or_else_expr;
 
 // *************************************************************************** //
 // Context class
@@ -114,6 +116,8 @@ public:
 	virtual void visit(div_expr *) = 0;
 	virtual void visit(rem_expr *) = 0;
 	virtual void visit(neg_expr *) = 0;
+	virtual void visit(and_then_expr *) = 0;
+	virtual void visit(or_else_expr *) = 0;
 };
 
 // *************************************************************************** //
@@ -990,6 +994,103 @@ public:
 };
 
 // *************************************************************************** //
+// And then expression class
+// 
+// Summary:
+//		- Constuction of this class takes one expression pointer
+//			(sub expression) declared as e.
+//		- e1 and e2 must be of the bool_type.
+// 		- This expression is of the bool_type.
+//		- The evaluation of this expression is equal to e2 if e1 evaluates
+//			to true, else the evaluation of this expression is false.
+// 
+// *************************************************************************** //
+class and_then_expr : public expr
+{
+public:
+	// Sub expression pointers
+	expr * e1;
+	expr * e2;
+
+	// Contstructor with initializer list
+	and_then_expr(expr * e1, expr * e2) : e1(e1), e2(e2)
+	{
+		// Type check before construction
+		check();
+	}
+	
+	// Destructor
+	~and_then_expr()
+	{
+		// Delete sub expression pointer
+		delete e1;
+		delete e2;
+	}
+
+	// Inherited virtual function definitions
+	void accept(visitor & v) { return v.visit(this); }	
+	type * check()
+	{
+		// Verify appropriate sub expression typing
+		if(e1->check() == & ctx->bool_type && e2->check() == & ctx->bool_type)
+		{
+			return & ctx->bool_type;
+		}
+
+		throw std::exception("and_then_expr inner expressions must be of bool_type");
+	}
+};
+
+// *************************************************************************** //
+// Or else expression class
+// 
+// Summary:
+//		- Constuction of this class takes one expression pointer
+//			(sub expression) declared as e.
+//		- e1 and e2 must be of the bool_type.
+// 		- This expression is of the bool_type.
+//		- The evaluation of this expression is equal to e1 by 
+//			default or else e2.
+// 
+// *************************************************************************** //
+class or_else_expr : public expr
+{
+public:
+	// Sub expression pointer
+	expr * e1;
+	expr * e2;
+
+	// Contstructor with initializer list
+	or_else_expr(expr * e1, expr * e2) : e1(e1), e2(e2)
+	{
+		// Type check before construction
+		check();
+	}
+	
+	// Destructor
+	~or_else_expr()
+	{
+		// Delete sub expression pointer
+		delete e1;
+		delete e2;
+	}
+
+	// Inherited virtual function definitions
+	void accept(visitor & v) { return v.visit(this); }	
+	type * check()
+	{
+		// Verify appropriate sub expression typing
+		type * r = e1->check();
+		if(r == e2->check())
+		{
+			return r;
+		}
+
+		throw std::exception("or_else_expr inner expression must be of identical type");
+	}
+};
+
+// *************************************************************************** //
 // Helper Functions
 // *************************************************************************** //
 
@@ -1027,6 +1128,8 @@ int eval(expr * e)
 		void visit(div_expr * e) { val = eval(e->e1) / eval(e->e2); }
 		void visit(rem_expr * e) { val = eval(e->e1) % eval(e->e2); }
 		void visit(neg_expr * e) { val = -eval(e->e); }
+		void visit(and_then_expr * e) { val = eval(e->e1) == 1 ? eval(e->e2) : 0; }
+		void visit(or_else_expr * e) { val = 1 == 1 ? eval(e->e1) : eval(e->e2); }
 	};
 
 	// Create v (derived from visitor)

@@ -24,6 +24,7 @@ private:
 	token * parse_bool(bool);
 	token * parse_binary();
 	token * parse_hex();
+	token * parse_comment();
 
 public:
 	lexer() { }
@@ -95,6 +96,15 @@ std::vector<token *> lexer::lex(std::string str)
 				break;
 			case ')':
 				tokens.push_back(new op_token(close_parenthesis));
+				break;
+			case '~':
+				tokens.push_back(new op_token(tilde));
+				break;
+			case '^':
+				tokens.push_back(new op_token(carat));
+				break;
+			case '#':
+				tokens.push_back(parse_comment());
 				break;
 			case '0':
 				next();
@@ -278,6 +288,28 @@ token * lexer::parse_hex()
 		std::cout << e.what() << std::endl;
 		throw e;
 	}
+}
+
+token * lexer::parse_comment()
+{
+	std::string s;	
+	char c = now();
+
+	// skip any initial whitespace
+	do
+	{
+		next();
+	}
+	while((c = now()) == ' ');
+
+
+	while(!empty())
+	{
+		s += now();
+		next();
+	}
+
+	return new comment_token(s);
 }
 
 #endif

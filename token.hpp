@@ -2,9 +2,6 @@
 #ifndef TOKEN_HPP
 #define TOKEN_HPP
 
-# include <ostream>
-# include <bitset>
-
 enum token_kind
 {
 	eof,
@@ -38,7 +35,8 @@ enum token_kind
 	bool_literal,
 	int_literal,
 	binary_literal,
-	hex_literal
+	hex_literal,
+	comment_literal
 };
 
 const char * token_kind_strs[] 
@@ -74,7 +72,8 @@ const char * token_kind_strs[]
 	"BOOL_LITERAL",
 	"INT_LITERAL",
 	"BINARY_LITERAL",
-	"HEX_LITERAL"
+	"HEX_LITERAL",
+	"COMMENT_LITERAL"
 };
 
 class op_token;
@@ -82,7 +81,7 @@ class bool_token;
 class int_token;
 class binary_token;
 class hex_token;
-int default_output_number_base = 10;
+class comment_token;
 
 class token
 {
@@ -90,10 +89,25 @@ public:
 	token_kind kind;
 
 	token() { }
-	~token() { }
+	virtual ~token() = default;
 
-	virtual void print(int) = 0;
+	// Visitor class declaration
+	class visitor;
+
+	// Pure virtual functions
+	virtual void accept(visitor &) = 0;
 	
+};
+
+class token::visitor
+{
+public:
+	virtual void visit(op_token *) = 0;
+	virtual void visit(bool_token *) = 0;
+	virtual void visit(int_token *) = 0;
+	virtual void visit(binary_token *) = 0;
+	virtual void visit(hex_token *) = 0;
+	virtual void visit(comment_token *) = 0;
 };
 
 class op_token : public token
@@ -105,10 +119,7 @@ public:
 	}
 	~op_token() { }
 
-	void print(int output_number_base = default_output_number_base)
-	{
-		std::cout << token_kind_strs[kind] << std::endl;;
-	}
+	void accept(visitor & v) { return v.visit(this); }
 	
 };
 
@@ -123,10 +134,7 @@ public:
 	}
 	~bool_token() { }
 
-	void print(int output_number_base = default_output_number_base)
-	{
-		std::cout << token_kind_strs[kind] << " : " << (val ? "TRUE" : "FALSE") << std::endl;;
-	}
+	void accept(visitor & v) { return v.visit(this); }
 	
 };
 
@@ -141,11 +149,7 @@ public:
 	}
 	~int_token() { }
 
-	void print(int output_number_base = default_output_number_base)
-	{
-		char buffer [33];
-		std::cout << token_kind_strs[kind] << " : " << itoa(val, buffer, output_number_base) << std::endl;
-	}
+	void accept(visitor & v) { return v.visit(this); }
 	
 };
 
@@ -160,11 +164,7 @@ public:
 	}
 	~binary_token() { }
 
-	void print(int output_number_base = default_output_number_base)
-	{
-		char buffer [33];
-		std::cout << token_kind_strs[kind] << " : " << itoa(val, buffer, output_number_base) << std::endl;
-	}
+	void accept(visitor & v) { return v.visit(this); }
 	
 };
 
@@ -179,11 +179,22 @@ public:
 	}
 	~hex_token() { }
 
-	void print(int output_number_base = default_output_number_base)
+	void accept(visitor & v) { return v.visit(this); }
+	
+};
+
+class comment_token : public token
+{
+public:
+	std::string val;
+
+	comment_token(std::string s) : val(s) 
 	{
-		char buffer [33];
-		std::cout << token_kind_strs[kind] << " : " << itoa(val, buffer, output_number_base) << std::endl;	
+		kind = comment_literal;
 	}
+	~comment_token() { }
+
+	void accept(visitor & v) { return v.visit(this); }
 	
 };
 

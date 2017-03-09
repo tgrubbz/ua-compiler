@@ -5,6 +5,7 @@
 
 # include "expression.hpp"
 # include "lexer.hpp"
+# include "print.hpp"
 
 void test_expr()
 {
@@ -49,16 +50,16 @@ void test_expr()
 
 void test_lexer(int argc, char * argv[])
 {
-	int output_number_base = 10;
+	output_format format = output_format::decimal;
 	if(argc > 1)
 	{
 		if(std::string(argv[argc - 1]) == "-b")
 		{
-			output_number_base = 2;
+			format = output_format::binary;
 		}
 		else if(std::string(argv[argc - 1]) == "-h")
 		{
-			output_number_base = 16;
+			format = output_format::hexadecimal;
 		}
 	}
 
@@ -70,7 +71,7 @@ void test_lexer(int argc, char * argv[])
 		std::vector<token *> tokens = lx.lex(str);
 		for(int i = 0; i < tokens.size(); ++i)
 		{
-			tokens.at(i)->print(output_number_base);
+			print(tokens.at(i), format);
 		}
 		std::cout << std::endl;
 	}	

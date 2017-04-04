@@ -2,7 +2,7 @@
 #ifndef PRINT_HPP
 #define PRINT_HPP
 
-# include "token.hpp"
+# include "ast/token.hpp"
 
 static char buffer [33];
 
@@ -58,6 +58,14 @@ void print(token * t, output_format format)
 		void visit(comment_token * tok) 
 		{
 			std::cout << token_kind_strs[tok->kind] << " : " << tok->val << std::endl;
+		}
+		void visit(id_token * tok) 
+		{
+			std::cout << token_kind_strs[tok->kind] << " : " << tok->val << std::endl;
+		}
+		void visit(var_token * tok) 
+		{
+			std::cout << token_kind_strs[tok->kind] << " : var" << std::endl;
 		}
 	};
 

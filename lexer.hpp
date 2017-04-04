@@ -4,7 +4,11 @@
 
 # include <string>
 # include <vector>
-# include "token.hpp"
+# include <cctype>
+# include "com/context.h"
+# include "ast/token.hpp"
+# include "ast/symbol.hpp"
+# include "ast/keyword.hpp"
 
 class lexer
 {
@@ -12,6 +16,8 @@ private:
 	char * current;
 	char * last;
 	std::vector<token *> tokens;
+	symbol_table * sym_tbl;
+	keyword_table * kw_tbl;
 
 	bool empty() { return current > last; }
 	char now() { return * current; }
@@ -25,9 +31,10 @@ private:
 	token * parse_binary();
 	token * parse_hex();
 	token * parse_comment();
+	token * parse_word();
 
 public:
-	lexer() { }
+	lexer(symbol_table * sym_tbl, keyword_table * kw_tbl) : sym_tbl(sym_tbl), kw_tbl(kw_tbl) { }
 	~lexer() { }
 
 	std::vector<token *> lex(std::string);
@@ -136,6 +143,10 @@ std::vector<token *> lexer::lex(std::string str)
 				tokens.push_back(parse_bool(false));
 				break;
 			default:
+				if(std::isalpha(c))
+				{
+					tokens.push_back(parse_word());
+				}
 				break;
 		}
 
@@ -310,6 +321,36 @@ token * lexer::parse_comment()
 	}
 
 	return new comment_token(s);
+}
+
+token * lexer::parse_word()
+{
+	std::string s;	
+	char c = now();
+
+	// skip any initial whitespace
+	while((c = now()) == ' ')
+	{
+		next();
+	};
+
+	// get the string
+	while(!empty())
+	{
+		s += now();
+		next();
+	}
+
+	if(kw_tbl->count(s) > 0)
+	{
+		switch(kw_tbl->at(s))
+		{
+			case token_kind::variable_literal:
+				return new var_token();
+		}
+	}
+
+	return new id_token(s);
 }
 
 #endif

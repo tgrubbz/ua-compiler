@@ -31,6 +31,7 @@ enum token_kind
 	carat,
 	pound,
 	semicolon,
+	equals,
 
 	// literals
 	bool_literal,
@@ -72,6 +73,7 @@ const char * token_kind_strs[]
 	"CARAT",
 	"POUND",
 	"SEMICOLON",
+	"EQUALS",
 
 	// literals
 	"BOOL_LITERAL",

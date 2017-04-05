@@ -2,13 +2,12 @@
 #include <unordered_map>
 #include <string>
 
-class symbol_table : public std::unordered_map<std::string, void *>
+class decl;
+
+class symbol_table : public std::unordered_map<std::string, decl *>
 {
 public:
 	symbol_table() { }
 	~symbol_table() { }
-
-	void ins(std::string);
-	bool exists(std::string);
 	
 };

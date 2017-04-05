@@ -12,7 +12,7 @@ public:
 		insert({ "false", bool_literal });
 		// insert({ "int", int_literal });
 		insert({ "true", bool_literal });
-		insert({ "var", variable_literal });		
+		insert({ "var", variable_literal });
 	}
 
 	~keyword_table() { }
